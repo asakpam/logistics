@@ -1,0 +1,329 @@
+{
+  "project": {
+    "name": "Logistics Platform",
+    "type": "Full Stack Web Application",
+    "description": "An intelligent logistics platform that enables shipment creation, real-time tracking, driver GPS monitoring, ETA prediction, SMS notifications, and product marketing.",
+    "targetUsers": [
+      "Customers",
+      "Drivers",
+      "Administrators"
+    ]
+  },
+
+  "roles": {
+    "customer": {
+      "permissions": [
+        "create_shipment",
+        "track_shipment",
+        "view_eta",
+        "receive_notifications",
+        "manage_profile",
+        "list_products"
+      ]
+    },
+
+    "driver": {
+      "permissions": [
+        "view_assigned_shipments",
+        "share_live_location",
+        "update_delivery_status",
+        "manage_profile"
+      ]
+    },
+
+    "admin": {
+      "permissions": [
+        "manage_users",
+        "manage_shipments",
+        "manage_drivers",
+        "view_analytics",
+        "manage_products",
+        "assign_drivers"
+      ]
+    }
+  },
+
+  "pages": [
+
+    {
+      "name": "Landing Page",
+      "route": "/",
+      "components": [
+        "Hero Section",
+        "Features Section",
+        "Track Shipment Search",
+        "Call To Action",
+        "Footer"
+      ]
+    },
+
+    {
+      "name": "Login",
+      "route": "/login"
+    },
+
+    {
+      "name": "Register",
+      "route": "/register"
+    },
+
+    {
+      "name": "Customer Dashboard",
+      "route": "/dashboard/customer",
+      "components": [
+        "Shipment Summary",
+        "Recent Shipments",
+        "Notifications",
+        "ETA Widget"
+      ]
+    },
+
+    {
+      "name": "Create Shipment",
+      "route": "/shipments/create"
+    },
+
+    {
+      "name": "Shipment Tracking",
+      "route": "/track/:trackingNumber",
+      "components": [
+        "Google Map",
+        "Live Driver Location",
+        "Shipment Timeline",
+        "ETA Display"
+      ]
+    },
+
+    {
+      "name": "Driver Dashboard",
+      "route": "/dashboard/driver"
+    },
+
+    {
+      "name": "Admin Dashboard",
+      "route": "/dashboard/admin"
+    },
+
+    {
+      "name": "Marketplace",
+      "route": "/marketplace"
+    },
+
+    {
+      "name": "Profile",
+      "route": "/profile"
+    }
+  ],
+
+  "features": {
+
+    "authentication": {
+      "enabled": true,
+      "methods": [
+        "Email Password",
+        "Google Login"
+      ]
+    },
+
+    "shipmentManagement": {
+      "createShipment": true,
+      "updateShipment": true,
+      "cancelShipment": true,
+      "trackingNumberGeneration": true
+    },
+
+    "tracking": {
+      "realTimeTracking": true,
+      "gpsTracking": true,
+      "googleMaps": true,
+      "liveDriverLocation": true
+    },
+
+    "notifications": {
+      "sms": true,
+      "pushNotifications": true,
+      "emailNotifications": false
+    },
+
+    "etaPrediction": {
+      "enabled": true,
+      "inputs": [
+        "distance",
+        "currentLocation",
+        "historicalDeliveries"
+      ]
+    },
+
+    "marketplace": {
+      "enabled": true,
+      "productListings": true
+    },
+
+    "analytics": {
+      "enabled": true,
+      "shipmentStatistics": true,
+      "deliveryPerformance": true
+    }
+  },
+
+  "database": {
+
+    "users": {
+      "fields": [
+        "id",
+        "firebaseUid",
+        "name",
+        "email",
+        "phone",
+        "role",
+        "avatar",
+        "isActive",
+        "createdAt"
+      ]
+    },
+
+    "drivers": {
+      "fields": [
+        "id",
+        "userId",
+        "licenseNumber",
+        "vehicleNumber",
+        "currentLatitude",
+        "currentLongitude",
+        "isAvailable",
+        "lastLocationAt"
+      ]
+    },
+
+    "shipments": {
+      "fields": [
+        "id",
+        "trackingNumber",
+        "customerId",
+        "driverId",
+        "pickupAddress",
+        "destinationAddress",
+        "receiverName",
+        "receiverPhone",
+        "packageType",
+        "weight",
+        "deliveryFee",
+        "status",
+        "statusHistory",
+        "currentLatitude",
+        "currentLongitude",
+        "estimatedArrival",
+        "pickupDate",
+        "createdAt"
+      ]
+    },
+
+    "products": {
+      "fields": [
+        "id",
+        "ownerId",
+        "title",
+        "description",
+        "price",
+        "category",
+        "imageUrl",
+        "createdAt"
+      ]
+    },
+
+    "notifications": {
+      "fields": [
+        "id",
+        "userId",
+        "message",
+        "type",
+        "isRead",
+        "createdAt"
+      ]
+    }
+  },
+
+  "shipmentStatuses": [
+    "Pending",
+    "Assigned",
+    "Dispatched",
+    "In Transit",
+    "Out For Delivery",
+    "Delivered",
+    "Cancelled"
+  ],
+
+  "api": {
+
+    "auth": [
+      "POST /api/auth/register",
+      "GET /api/auth/me"
+    ],
+
+    "users": [
+      "GET /api/users",
+      "GET /api/users/:id",
+      "PUT /api/users/:id"
+    ],
+
+    "shipments": [
+      "POST /api/shipments",
+      "GET /api/shipments",
+      "GET /api/shipments/:id",
+      "PUT /api/shipments/:id/status",
+      "PUT /api/shipments/:id/assign"
+    ],
+
+    "tracking": [
+      "POST /api/tracking/location",
+      "GET /api/tracking/:trackingNumber"
+    ],
+
+    "drivers": [
+      "GET /api/drivers",
+      "POST /api/drivers/me"
+    ],
+
+    "products": [
+      "POST /api/products",
+      "GET /api/products"
+    ]
+  },
+
+  "techStack": {
+    "frontend": "React + Tailwind CSS",
+    "backend": "Node.js + Express",
+    "database": "MongoDB",
+    "authentication": "Firebase Auth",
+    "maps": "Google Maps API",
+    "sms": "Twilio",
+    "notifications": "Firebase Cloud Messaging",
+    "realTime": "Socket.IO"
+  },
+
+  "mvpPriorities": [
+    "Firebase-backed role authentication without storing passwords",
+    "Customer shipment creation",
+    "Admin driver assignment",
+    "Assigned driver status and GPS location updates",
+    "Customer shipment tracking",
+    "Status-change notifications"
+  ],
+
+  "securityRules": [
+    "Only authenticated users can create shipments",
+    "Only admins can assign drivers and view all shipments",
+    "Only the assigned driver can update live shipment location",
+    "Customers can only view their own protected shipment records",
+    "Public tracking responses expose limited shipment data"
+  ],
+
+  "futureFeatures": [
+    "Mobile Money Payments",
+    "QR Code Package Tracking",
+    "AI ETA Prediction",
+    "Route Optimization",
+    "Native Mobile App",
+    "Vehicle GPS Hardware Integration"
+  ]
+}

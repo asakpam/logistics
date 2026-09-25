@@ -1,0 +1,14 @@
+node_modules/
+serviceAccountKey.json
+*serviceAccount*.json
+.env
+.env.*
+*.env
+!.env.example
+logs/
+*.log
+npm-debug.log*
+
+# Uploads
+uploads/*
+!uploads/.gitkeep

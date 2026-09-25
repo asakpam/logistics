@@ -1,0 +1,278 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                   DIGITAL ADDRESS FEATURE - QUICK REFERENCE                 ║
+║                                                                              ║
+║                    Version 1.1.1 - September 2, 2026                        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT'S NEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Digital Address field added to driver registration
+✅ Stored in MongoDB Driver collection
+✅ Displayed in admin approval modal
+✅ Format validation: XX-###-####
+✅ Full client and server-side validation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FORM FIELD DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FIELD NAME:          Digital Address
+SECTION:             Vehicle Information
+ICON:                📍 (Location Pin)
+LABEL:               Digital Address
+PLACEHOLDER:         e.g. GA-001-1234
+FORMAT:              XX-###-####
+MIN LENGTH:          7 characters
+REQUIRED:            ✅ Yes (for drivers)
+VALIDATION:          Regex /^[A-Z]{2}-\d{3}-\d{4}$/
+
+ERROR MESSAGES:
+  • Empty: "Digital address is required."
+  • Wrong format: "Digital address must be in format: GA-001-1234"
+
+HELPER TEXT:         "Format: XX-###-#### (Your Ghana Digital Address)"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REGISTRATION FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DRIVER REGISTRATION FORM SECTIONS:
+
+1. PERSONAL INFORMATION
+   ├── Full Name
+   ├── Email Address
+   ├── Phone Number
+   └── Password (+ Confirm)
+
+2. DRIVER INFORMATION
+   └── Driver's Licence Number
+
+3. VEHICLE INFORMATION
+   ├── Vehicle Type (dropdown)
+   ├── Vehicle Number Plate
+   └── 📍 Digital Address (NEW)
+
+4. IDENTITY VERIFICATION
+   └── Ghana Card Image
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VALID FORMATS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VALID EXAMPLES:
+   GA-001-1234    (Ghana - 001 - 1234)
+   GA-123-4567    (Ghana - 123 - 4567)
+   GA-999-9999    (Ghana - 999 - 9999)
+   GH-001-1234    (Alternative Ghana code)
+
+❌ INVALID EXAMPLES:
+   ga-001-1234    (Lowercase - must be uppercase)
+   GA-01-1234     (Wrong digit count - need 3 digits)
+   GA001-1234     (Missing dash - must use XX-###-####)
+   GAA-001-1234   (Too many letters - need 2 letters)
+   GA-001         (Missing digits - need 4 digits)
+   01-1234        (Missing country code - need 2 letters)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DATABASE SCHEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DRIVER COLLECTION:
+
+db.drivers {
+  _id: ObjectId,
+  userId: ObjectId (ref to User),
+  licenseNumber: String,
+  vehicleNumber: String,
+  vehicleType: String,
+  digitalAddress: String,        ← NEW FIELD
+  ghanaCardImage: String,
+  status: String,
+  isAvailable: Boolean,
+  createdAt: Date,
+  updatedAt: Date
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADMIN DASHBOARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DRIVER REVIEW MODAL NOW SHOWS:
+
+├── Driver Name & Avatar
+├── Email
+├── Phone
+├── License Number
+├── Vehicle Type
+├── Vehicle Number Plate
+├── 📍 Digital Address (NEW)
+├── Registration Date
+├── Status
+├── Ghana Card Image
+└── Approve/Reject Buttons
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILES MODIFIED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BACKEND:
+  ✅ server/src/models/Driver.js
+     - Added digitalAddress field
+
+  ✅ server/src/routes/auth.js
+     - Added validation for digitalAddress
+     - Updated Driver creation to store digitalAddress
+
+FRONTEND:
+  ✅ client/src/pages/RegisterPage.jsx
+     - Added digitalAddress to form state
+     - Added form field UI
+     - Added validation
+     - Updated FormData submission
+
+  ✅ client/src/pages/AdminDashboard.jsx
+     - Updated review modal to display digitalAddress
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TESTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUICK TEST STEPS:
+
+1. Open: http://localhost:3001/register
+2. Select: "Driver" role
+3. Fill form including Digital Address
+4. Test formats:
+   ✅ GA-001-1234 (should work)
+   ❌ ga-001-1234 (should error - lowercase)
+   ❌ GA-01-1234 (should error - wrong format)
+   ❌ GA001-1234 (should error - missing dash)
+5. Submit registration
+6. Login as admin
+7. View pending driver in dashboard
+8. Modal should display Digital Address
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VALIDATION RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CLIENT-SIDE (JavaScript):
+  • Required field check
+  • Format validation: /^[A-Z]{2}-\d{3}-\d{4}$/
+  • Error message display
+
+SERVER-SIDE (Zod):
+  • Required field check
+  • Minimum length: 7 characters
+  • Format validation: /^[A-Z]{2}-\d{3}-\d{4}$/
+  • Error message: "Digital address must be in format: GA-001-1234"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BACKWARD COMPATIBILITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ NO BREAKING CHANGES
+   • Existing drivers unaffected
+   • Optional field in database
+   • New drivers will have it stored
+   • Admin dashboard shows "N/A" if not provided
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INTEGRATION EXAMPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DRIVER REGISTRATION REQUEST:
+
+{
+  name: "John Doe",
+  email: "john@example.com",
+  phone: "+233 20 123 4567",
+  password: "Password123",
+  role: "driver",
+  licenseNumber: "DL123456789",
+  vehicleType: "Van",
+  vehicleNumber: "GR-0001-24",
+  digitalAddress: "GA-001-1234",        ← NEW
+  ghanaCard: <File Object>
+}
+
+STORED IN MONGODB:
+
+{
+  _id: ObjectId,
+  userId: ObjectId,
+  licenseNumber: "DL123456789",
+  vehicleNumber: "GR-0001-24",
+  vehicleType: "Van",
+  digitalAddress: "GA-001-1234",        ← STORED
+  ghanaCardImage: "filename.jpg",
+  status: "pending",
+  isAvailable: false,
+  createdAt: ISODate,
+  updatedAt: ISODate
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+API ENDPOINT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+POST /api/auth/register
+
+REQUEST (multipart/form-data):
+  • name: String
+  • email: String
+  • phone: String (required for drivers)
+  • role: "driver"
+  • licenseNumber: String
+  • vehicleType: String
+  • vehicleNumber: String
+  • digitalAddress: String (format: XX-###-####)
+  • ghanaCard: File
+
+RESPONSE:
+  {
+    _id: ObjectId,
+    firebaseUid: String,
+    name: String,
+    email: String,
+    role: "driver",
+    status: "pending",
+    isActive: true,
+    createdAt: ISODate,
+    updatedAt: ISODate
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSION HISTORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+v1.0.0  -  Initial release with Ghana Card upload
+v1.1.0  -  Enhanced driver verification system
+v1.1.1  -  Added Digital Address field (THIS UPDATE)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Digital Address has been successfully integrated into the driver registration
+system. The field is:
+
+✅ Required for new driver registrations
+✅ Validated on client and server
+✅ Stored in MongoDB
+✅ Displayed in admin dashboard
+✅ Format-validated (XX-###-####)
+✅ User-friendly with error messages
+
+READY FOR PRODUCTION ✨
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Version: 1.1.1
+Date: September 2, 2026
+Status: ✅ Complete
+

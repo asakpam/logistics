@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment and Secrets
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+serviceAccountKey.json
+**/serviceAccountKey.json
+*serviceAccount*.json
+**/serviceAccount*.json
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# Uploads and temporary user files
+uploads/*
+**/uploads/*
+!**/uploads/.gitkeep
+docx_output.txt
+
+# Logs
+logs/
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.agents/
+.codex_review_render/
