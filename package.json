@@ -2,7 +2,7 @@
   "name": "logistics-monorepo",
   "private": true,
   "scripts": {
-    "build": "cd logistics-platform/client && npm install && npm run build"
+    "build": "cd client && npm install && npm run build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0"
