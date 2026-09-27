@@ -57,9 +57,11 @@ Under **Environment Variables**, add the following variables:
 | Variable Name | Value Description | Example / Current Value |
 | :--- | :--- | :--- |
 | `VITE_SUPABASE_URL` | Your Supabase project URL | `https://ekkeajtpxgwrtcebumhh.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase public anon key | *(From `client/.env`)* |
-| `VITE_API_URL` | URL of your deployed backend API | `https://your-backend.onrender.com/api` |
+| `VITE_SUPABASE_ANON_KEY` | Your Supabase public anon key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVra2VhanRweGd3cnRjZWJ1bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNDE1MzEsImV4cCI6MjEwNTYxNzUzMX0.8iCSxjfZwg8kYc26NjDJS40z5bN8v2pO0fSIkN6CSVM` |
+| `VITE_API_URL` | URL of your deployed backend API | `https://your-backend.onrender.com/api` (or local/proxy) |
 | `VITE_SOCKET_URL` | Base URL of your backend for Socket.IO | `https://your-backend.onrender.com` |
+
+> **⚠️ Warning**: Do NOT type or paste placeholder notes like `(Your Supabase anon public key from client/.env)`. Paste the actual long JWT string starting with `ey...`!
 
 ### Step 4: Deploy
 Click **Deploy**. Vercel will install dependencies, build the Vite app, and provide you with a production URL (e.g. `https://logistics-client-xyz.vercel.app`).
