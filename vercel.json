@@ -1,7 +1,6 @@
 {
-  "buildCommand": "npm --prefix logistics-platform/client run build",
+  "buildCommand": "cd logistics-platform/client && npm install && npm run build",
   "outputDirectory": "logistics-platform/client/dist",
-  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
