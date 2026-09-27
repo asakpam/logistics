@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm --prefix logistics-platform/client run build",
+  "outputDirectory": "logistics-platform/client/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

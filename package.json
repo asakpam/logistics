@@ -1,4 +1,10 @@
 {
+  "name": "logistics-monorepo",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm --prefix logistics-platform/client install",
+    "build": "npm --prefix logistics-platform/client run build"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0"
   }
