@@ -2549,3 +2549,169 @@ main.page-content {
 .file-upload-label:hover {
   color: var(--clr-primary);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE OVERFLOW FIX
+   Root causes:
+   1. .topbar has no mobile breakpoint — nav links + actions
+      overflow the bar on small screens.
+   2. .hero-content uses grid 1fr 1fr with no breakpoint —
+      two columns on a 360px screen exceed the viewport.
+   3. .footer-grid uses 4 columns with no mobile breakpoint.
+   4. .container padding (2rem) is too large on very small screens.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Prevent any element from making the page wider than viewport ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* ── Safe container padding on small screens ─────────────── */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--sp-md); /* 1rem instead of 2rem */
+  }
+}
+
+/* ── Tablet: hero switches to single column ──────────────── */
+@media (max-width: 900px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    gap: var(--sp-2xl);
+    padding: var(--sp-2xl) var(--sp-xl);
+  }
+
+  /* Hide the floating track card on tablet/mobile — the hero
+     left column is the priority content */
+  .hero-content > div:last-child {
+    display: none;
+  }
+}
+
+/* ── Mobile navbar: hide desktop nav links & actions ─────── */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 var(--sp-md);
+    gap: var(--sp-sm);
+  }
+
+  /* Hide nav links completely on mobile */
+  .topbar nav {
+    display: none;
+  }
+
+  /* Keep topbar-actions but shrink them */
+  .topbar-actions {
+    gap: var(--sp-xs);
+  }
+
+  /* Make Get Started button in navbar smaller on mobile */
+  .topbar-actions .btn-primary.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  /* Brand text: allow slight shrink */
+  .brand {
+    font-size: 1.1rem;
+  }
+
+  /* Hero: reduce padding */
+  .hero-content {
+    padding: var(--sp-xl) var(--sp-md);
+    gap: var(--sp-xl);
+  }
+
+  /* Hero title: already uses clamp(), but floor it further */
+  .hero-title {
+    font-size: clamp(1.8rem, 8vw, 2.8rem);
+  }
+
+  /* Hero subtitle: allow full width */
+  .hero-subtitle {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  /* Hero CTA buttons: stack on very small screens */
+  .hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-ctas .btn {
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Hero stats: reduce gap */
+  .hero-stats {
+    gap: var(--sp-lg);
+  }
+
+  /* Footer: single column */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-xl);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-sm);
+  }
+
+  /* General grids: collapse to 1 column */
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* grid-auto already uses auto-fit/minmax — fine on mobile */
+
+  /* Container padding */
+  .container {
+    padding: 0 var(--sp-md);
+  }
+
+  /* Auth card: edge-to-edge safe spacing */
+  .auth-card {
+    padding: var(--sp-xl) var(--sp-md);
+  }
+
+  /* CTA actions: stack */
+  .cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Very small screens (320px) ──────────────────────────── */
+@media (max-width: 380px) {
+  .brand {
+    font-size: 0.95rem;
+  }
+
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.6rem, 9vw, 2.2rem);
+  }
+
+  /* Stat numbers a bit smaller */
+  .hero-stat-value {
+    font-size: 1.4rem;
+  }
+}
