@@ -143,7 +143,7 @@ export function ManageDrivers() {
       </div>
 
       {/* Driver cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "1rem" }}>
+      <div className="driver-cards-grid">
         {filtered.map(d => {
           const st = (d.status || "pending").toLowerCase();
           const badgeClass = st === "approved" || st === "active" ? "badge-success" : st === "pending" ? "badge-warning" : "badge-danger";
@@ -312,7 +312,7 @@ export function ManageDrivers() {
                     onChange={e => setEditForm({ ...editForm, street: e.target.value })}
                   />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                <div className="modal-grid-2">
                   <div className="form-group">
                     <label className="form-label">City</label>
                     <input

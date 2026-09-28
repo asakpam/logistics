@@ -134,7 +134,7 @@ export function AssignedShipments() {
             const trk = s.trackingNumber || s.id;
             return (
               <div key={trk} className="card">
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: "1.5rem", alignItems: "center" }}>
+                <div className="assigned-shipment-grid">
                   {/* Shipment info */}
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>

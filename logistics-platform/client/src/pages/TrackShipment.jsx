@@ -236,7 +236,7 @@ export function TrackShipment() {
         </div>
       </div>
 
-      <div className="dashboard-grid" style={{ gridTemplateColumns: "1fr 1.6fr" }}>
+      <div className="dashboard-grid track-dashboard-grid">
         {/* ── Timeline ── */}
         <div className="card">
           <div className="card-header"><h2 className="card-title">Shipment Timeline</h2></div>

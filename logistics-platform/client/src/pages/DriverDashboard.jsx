@@ -343,7 +343,7 @@ export function DriverDashboard() {
                 </span>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "1.5rem" }}>
+              <div className="driver-details-grid">
                 {/* Information Column */}
                 <div>
                   {/* Customer Information (Necessary for delivery) */}
@@ -351,7 +351,7 @@ export function DriverDashboard() {
                     <div className="text-xs text-faint" style={{ marginBottom: "0.4rem", fontWeight: 700, color: "var(--clr-primary)" }}>
                       👤 CUSTOMER CONTACT
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", fontSize: "0.88rem" }}>
+                    <div className="driver-info-grid">
                       <div>
                         <span className="text-xs text-muted" style={{ display: "block" }}>Name</span>
                         <strong>{selectedDelivery.customerName || selectedDelivery.customer || "Customer"}</strong>

@@ -312,7 +312,7 @@ export function CreateShipment() {
               <h2 className="form-section-title" style={{ marginBottom: "1.5rem" }}>🔍 Review Your Shipment</h2>
               {error && <div className="alert alert-error" style={{ marginBottom: "1rem" }}>{error}</div>}
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+              <div className="shipment-review-grid">
                 <div>
                   <p className="review-group-label">📍 Pickup</p>
                   <p className="review-value">{form.pickupAddress}, {form.pickupCity}</p>

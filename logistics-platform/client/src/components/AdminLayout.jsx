@@ -1,6 +1,19 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, useOutletContext } from "react-router-dom";
 
 export function AdminLayout() {
+  const outletCtx = useOutletContext();
+  const location = useLocation();
+  const [localOpen, setLocalOpen] = useState(false);
+
+  const isOpen = outletCtx?.adminSidebarOpen ?? localOpen;
+  const setIsOpen = outletCtx?.setAdminSidebarOpen ?? setLocalOpen;
+
+  // Auto-close sidebar whenever the route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   const navItems = [
     { path: "/dashboard/admin", label: "Dashboard", icon: "📊" },
     { path: "/admin/users", label: "Users", icon: "👥" },
@@ -15,70 +28,54 @@ export function AdminLayout() {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "calc(100vh - 68px)" }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: "240px",
-        background: "var(--clr-surface)",
-        borderRight: "1px solid var(--clr-border)",
-        padding: "1.5rem 0",
-        position: "sticky",
-        top: 68,
-        height: "calc(100vh - 68px)",
-        overflowY: "auto",
-      }}>
-        <div style={{ padding: "0 1rem 1rem 1rem", borderBottom: "1px solid var(--clr-border)", marginBottom: "1rem" }}>
-          <h3 style={{ 
-            fontSize: "0.75rem", 
-            fontWeight: 700, 
-            textTransform: "uppercase", 
-            letterSpacing: "0.05em", 
-            color: "var(--clr-text-muted)",
-            marginBottom: "0.5rem"
-          }}>
-            Admin Panel
-          </h3>
+    <div className="admin-layout">
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div
+          className="admin-sidebar-backdrop open"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar (Permanent on desktop >= 1024px, Off-canvas on mobile/tablet < 1024px) */}
+      <aside
+        id="admin-sidebar"
+        className={`admin-sidebar ${isOpen ? "open" : ""}`}
+        aria-label="Admin Navigation"
+      >
+        <div className="admin-sidebar-header">
+          <h3 className="admin-sidebar-title">Admin Panel</h3>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close navigation"
+          >
+            ✕
+          </button>
         </div>
-        
-        <nav style={{ display: "flex", flexDirection: "column", gap: "0.25rem", padding: "0 0.75rem" }}>
+
+        <nav className="admin-sidebar-nav" aria-label="Admin navigation links">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               end={item.path === "/dashboard/admin"}
-              style={({ isActive }) => ({
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                padding: "0.625rem 0.875rem",
-                borderRadius: "var(--r-md)",
-                textDecoration: "none",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                color: isActive ? "var(--clr-primary)" : "var(--clr-text)",
-                background: isActive ? "var(--clr-primary-alpha)" : "transparent",
-                transition: "all var(--tr-fast)",
-              })}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.classList.contains('active')) {
-                  e.currentTarget.style.background = "var(--clr-surface-2)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!e.currentTarget.classList.contains('active')) {
-                  e.currentTarget.style.background = "transparent";
-                }
-              }}
+              className={({ isActive }) =>
+                `admin-nav-item${isActive ? " active" : ""}`
+              }
+              onClick={() => setIsOpen(false)}
             >
-              <span style={{ fontSize: "1.1rem" }}>{item.icon}</span>
-              <span>{item.label}</span>
+              <span className="admin-nav-icon">{item.icon}</span>
+              <span className="admin-nav-label">{item.label}</span>
             </NavLink>
           ))}
         </nav>
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, minWidth: 0 }}>
+      <main className="admin-main">
         <Outlet />
       </main>
     </div>

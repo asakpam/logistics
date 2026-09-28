@@ -179,7 +179,7 @@ export function MyShipments() {
           </div>
         ) : (
           /* Card view */
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem", padding: "0 0 0.5rem" }}>
+          <div className="shipment-cards-grid">
             {filtered.map((s) => (
               <div
                 key={s.id || s.trackingNumber}

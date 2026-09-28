@@ -1170,7 +1170,7 @@ export function AdminDashboard() {
                 <h4 style={{ margin: "0 0 0.75rem 0", fontSize: "0.9rem", color: "var(--clr-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                   📍 Route & Recipient
                 </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", fontSize: "0.88rem" }}>
+                <div className="modal-grid-2" style={{ fontSize: "0.88rem" }}>
                   <div>
                     <span className="text-xs text-faint" style={{ display: "block" }}>Pickup Location</span>
                     <div>{viewShipmentModal.pickupAddress || viewShipmentModal.from || "N/A"}</div>
@@ -1309,7 +1309,7 @@ export function AdminDashboard() {
                 <h4 style={{ margin: "0 0 0.75rem 0", fontSize: "0.9rem", color: "var(--clr-primary)" }}>
                   Account Profile
                 </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", fontSize: "0.88rem" }}>
+                <div className="modal-grid-2" style={{ fontSize: "0.88rem" }}>
                   <div>
                     <span className="text-xs text-faint" style={{ display: "block" }}>Email</span>
                     <a href={`mailto:${viewUserModal.email}`} style={{ color: "var(--clr-primary)", wordBreak: "break-all" }}>
@@ -1419,7 +1419,7 @@ export function AdminDashboard() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div className="modal-grid-2">
                 <div className="form-group">
                   <label className="form-label">City</label>
                   <input

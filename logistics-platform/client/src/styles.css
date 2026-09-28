@@ -2551,30 +2551,361 @@ main.page-content {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RESPONSIVE — MOBILE OVERFLOW FIX
-   Root causes:
-   1. .topbar has no mobile breakpoint — nav links + actions
-      overflow the bar on small screens.
-   2. .hero-content uses grid 1fr 1fr with no breakpoint —
-      two columns on a 360px screen exceed the viewport.
-   3. .footer-grid uses 4 columns with no mobile breakpoint.
-   4. .container padding (2rem) is too large on very small screens.
+   RESPONSIVE DESIGN SYSTEM — ENTIRE APPLICATION
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Prevent any element from making the page wider than viewport ── */
+/* ── Prevent content from escaping the viewport ─────────── */
 html, body {
-  overflow-x: hidden;
   max-width: 100%;
 }
 
-/* ── Safe container padding on small screens ─────────────── */
-@media (max-width: 480px) {
-  .container {
-    padding: 0 var(--sp-md); /* 1rem instead of 2rem */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure all images and canvas fit containers */
+img, svg, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure inputs, buttons, and selects don't burst out */
+input, select, textarea, button {
+  max-width: 100%;
+}
+
+/* ── Topbar Brand Wrap & Hamburger Buttons ──────────────── */
+.topbar-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--r-md);
+  color: var(--clr-text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--tr-fast);
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+
+.hamburger-btn:hover {
+  background: var(--clr-surface-2);
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+.hamburger-btn:focus-visible {
+  outline: 2px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
+.hamburger-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Admin Layout & Responsive Sidebar ───────────────────── */
+.admin-layout {
+  display: flex;
+  min-height: calc(100vh - 68px);
+  width: 100%;
+  max-width: 100%;
+}
+
+.admin-sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--clr-surface);
+  border-right: 1px solid var(--clr-border);
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.admin-sidebar-header {
+  padding: 0 1rem 1rem 1rem;
+  border-bottom: 1px solid var(--clr-border);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-sidebar-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-text-muted);
+}
+
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--tr-fast);
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--clr-danger);
+  color: var(--clr-danger);
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--clr-text);
+  background: transparent;
+  transition: all var(--tr-fast);
+}
+
+.admin-nav-item:hover {
+  background: var(--clr-surface-2);
+  color: var(--clr-text);
+}
+
+.admin-nav-item.active {
+  color: var(--clr-primary);
+  background: var(--clr-primary-alpha);
+  font-weight: 600;
+}
+
+.admin-nav-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.admin-nav-label {
+  white-space: nowrap;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-sidebar-backdrop {
+  display: none;
+}
+
+/* ── Mobile Navigation Drawer (Public / Non-Admin) ──────── */
+.mobile-nav-backdrop {
+  display: none;
+}
+
+.mobile-nav-drawer {
+  display: none;
+}
+
+/* ── Custom Responsive Layout Classes ────────────────────── */
+.track-dashboard-grid {
+  grid-template-columns: 1fr 1.6fr;
+}
+
+.driver-details-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.5rem;
+}
+
+.driver-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+}
+
+.assigned-shipment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.driver-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+}
+
+.shipment-review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* Shipment cards grid (MyShipments card view) */
+.shipment-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+  padding: 0 0 0.5rem;
+}
+
+/* Reports: delivery time summary — responsive flex row */
+.report-summary-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Dashboard header action group */
+.dashboard-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MEDIA QUERIES
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── DESKTOP (>= 1024px) ─────────────────────────────────── */
+@media (min-width: 1024px) {
+  .hamburger-btn,
+  .admin-hamburger-btn,
+  .mobile-nav-toggle-btn {
+    display: none !important;
+  }
+
+  .admin-sidebar {
+    display: block !important;
+    position: sticky !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-close-btn,
+  .admin-sidebar-backdrop {
+    display: none !important;
+  }
+
+  .topbar-nav {
+    display: flex !important;
   }
 }
 
-/* ── Tablet: hero switches to single column ──────────────── */
+/* ── TABLET & MOBILE (< 1024px) ──────────────────────────── */
+@media (max-width: 1023px) {
+  .admin-layout {
+    display: block;
+  }
+
+  /* Show admin hamburger toggle */
+  .admin-hamburger-btn {
+    display: inline-flex !important;
+  }
+
+  /* Off-canvas Admin Sidebar */
+  .admin-sidebar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    bottom: 0;
+    width: 270px;
+    max-width: 85vw;
+    height: calc(100vh - 68px);
+    background: var(--clr-surface);
+    border-right: 1px solid var(--clr-border);
+    padding: 1rem 0;
+    z-index: 1100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%);
+    transition: transform var(--tr-base);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close-btn {
+    display: flex !important;
+  }
+
+  .admin-sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 68px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 1050;
+    animation: fadeIn var(--tr-fast);
+  }
+
+  .admin-main {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stats-grid-wide {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── TABLET & MOBILE (< 900px) ───────────────────────────── */
 @media (max-width: 900px) {
   .hero-content {
     grid-template-columns: 1fr;
@@ -2582,76 +2913,246 @@ html, body {
     padding: var(--sp-2xl) var(--sp-xl);
   }
 
-  /* Hide the floating track card on tablet/mobile — the hero
-     left column is the priority content */
-  .hero-content > div:last-child {
-    display: none;
+  .track-dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .driver-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .assigned-shipment-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
-/* ── Mobile navbar: hide desktop nav links & actions ─────── */
+/* ── MOBILE SCREENS (< 768px) ────────────────────────────── */
 @media (max-width: 768px) {
+  .mobile-nav-toggle-btn {
+    display: inline-flex !important;
+  }
+
+  /* Mobile Topbar */
   .topbar {
     padding: 0 var(--sp-md);
-    gap: var(--sp-sm);
-  }
-
-  /* Hide nav links completely on mobile */
-  .topbar nav {
-    display: none;
-  }
-
-  /* Keep topbar-actions but shrink them */
-  .topbar-actions {
     gap: var(--sp-xs);
   }
 
-  /* Make Get Started button in navbar smaller on mobile */
-  .topbar-actions .btn-primary.btn-sm {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.78rem;
+  .topbar-nav {
+    display: none !important;
   }
 
-  /* Brand text: allow slight shrink */
   .brand {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
-  /* Hero: reduce padding */
+  /* Public Mobile Nav Drawer */
+  .mobile-nav-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 68px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 1050;
+    animation: fadeIn var(--tr-fast);
+  }
+
+  .mobile-nav-drawer.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 68px;
+    left: 0;
+    bottom: 0;
+    width: 270px;
+    max-width: 85vw;
+    height: calc(100vh - 68px);
+    background: var(--clr-surface);
+    border-right: 1px solid var(--clr-border);
+    z-index: 1100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: slideInLeft var(--tr-base);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .mobile-nav-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--clr-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-nav-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--clr-text);
+  }
+
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    flex: 1;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.875rem;
+    border-radius: var(--r-md);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--clr-text);
+  }
+
+  .mobile-nav-link.active {
+    color: var(--clr-primary);
+    background: var(--clr-primary-alpha);
+    font-weight: 600;
+  }
+
+  .mobile-nav-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--clr-border);
+  }
+
+  /* Container & Dashboard Page Padding */
+  .container {
+    padding: 0 var(--sp-md);
+  }
+
+  .dashboard-page {
+    padding: var(--sp-md) var(--sp-sm);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-md);
+    margin-bottom: var(--sp-lg);
+  }
+
+  .dashboard-header > div:last-child {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  /* Grid Resets: prevent multi-column collapse from causing phantom columns */
+  .dash-grid-3,
+  .dash-grid-2,
+  .dashboard-grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Prevent card spans from pushing out 1-column layouts */
+  .dash-grid-3 > div,
+  .dash-grid-2 > div,
+  .dashboard-grid > div,
+  .card[style*="span"],
+  div[style*="grid-column: span"],
+  div[style*="gridColumn: span"],
+  div[style*="grid-column:span"],
+  div[style*="gridColumn:span"] {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Stats Cards Grid */
+  .stats-grid-wide {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 0.875rem;
+    gap: 0.75rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  /* Tables: clean scrollable containment */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .data-table {
+    min-width: 520px;
+    width: 100%;
+  }
+
+  /* Hero: mobile adjustments */
   .hero-content {
     padding: var(--sp-xl) var(--sp-md);
     gap: var(--sp-xl);
   }
 
-  /* Hero title: already uses clamp(), but floor it further */
   .hero-title {
     font-size: clamp(1.8rem, 8vw, 2.8rem);
   }
 
-  /* Hero subtitle: allow full width */
   .hero-subtitle {
     max-width: 100%;
     font-size: 1rem;
   }
 
-  /* Hero CTA buttons: stack on very small screens */
   .hero-ctas {
     flex-direction: column;
     align-items: stretch;
   }
 
   .hero-ctas .btn {
-    text-align: center;
-    justify-content: center;
     width: 100%;
+    justify-content: center;
   }
 
-  /* Hero stats: reduce gap */
   .hero-stats {
     gap: var(--sp-lg);
   }
 
-  /* Footer: single column */
+  /* Footer */
   .footer-grid {
     grid-template-columns: 1fr;
     gap: var(--sp-xl);
@@ -2663,26 +3164,7 @@ html, body {
     gap: var(--sp-sm);
   }
 
-  /* General grids: collapse to 1 column */
-  .grid-2,
-  .grid-3,
-  .grid-4 {
-    grid-template-columns: 1fr;
-  }
-
-  /* grid-auto already uses auto-fit/minmax — fine on mobile */
-
-  /* Container padding */
-  .container {
-    padding: 0 var(--sp-md);
-  }
-
-  /* Auth card: edge-to-edge safe spacing */
-  .auth-card {
-    padding: var(--sp-xl) var(--sp-md);
-  }
-
-  /* CTA actions: stack */
+  /* CTA actions */
   .cta-actions {
     flex-direction: column;
     align-items: stretch;
@@ -2692,9 +3174,128 @@ html, body {
     width: 100%;
     justify-content: center;
   }
+
+  /* Shipment cards grid — single column on narrow mobile */
+  .shipment-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dashboard header: stack title + actions vertically */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-md);
+    margin-bottom: var(--sp-lg);
+  }
+
+  .dashboard-header-actions {
+    gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  /* Dash tabs: allow horizontal scroll instead of overflow */
+  .dash-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+  }
+
+  /* Dashboard title: no text overflow on narrow screens */
+  .dashboard-title {
+    font-size: clamp(1.25rem, 5vw, 1.8rem);
+    word-break: break-word;
+  }
+
+  /* Reports — summary row flex wrap already set via class */
+  .report-summary-row {
+    gap: 1rem;
+  }
+
+  /* Prevent any card or panel from generating phantom horizontal width */
+  .card,
+  .stat-card {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Filters row: allow wrapping on small screens */
+  .filter-row,
+  div[style*="flexWrap"] {
+    flex-wrap: wrap !important;
+  }
 }
 
-/* ── Very small screens (320px) ──────────────────────────── */
+/* ── SMALL SCREENS (< 560px) ─────────────────────────────── */
+@media (max-width: 560px) {
+  .assigned-shipment-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .shipment-review-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modal-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── EXTRA SMALL MOBILE (< 480px) ────────────────────────── */
+@media (max-width: 480px) {
+  .topbar-user-name {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 0.35rem;
+  }
+
+  .topbar-actions .btn-primary.btn-sm,
+  .topbar-actions .btn-outline.btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.76rem;
+  }
+
+  .brand {
+    font-size: 1.05rem;
+  }
+
+  .dashboard-page {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .driver-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .modal-card {
+    padding: 1.15rem 0.85rem;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--r-lg);
+  }
+
+  .stats-grid-wide {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── VERY SMALL SCREENS (320px - 380px) ───────────────────── */
 @media (max-width: 380px) {
   .brand {
     font-size: 0.95rem;
@@ -2710,8 +3311,8 @@ html, body {
     font-size: clamp(1.6rem, 9vw, 2.2rem);
   }
 
-  /* Stat numbers a bit smaller */
   .hero-stat-value {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
-}
+}
+

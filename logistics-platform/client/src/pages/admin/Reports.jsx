@@ -222,14 +222,14 @@ export function Reports() {
         <div className="card-header">
           <h2 className="card-title">Delivery Time Summary</h2>
         </div>
-        <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+        <div className="report-summary-row">
           {[
             { label: "Total Delivered",    value: kpi.delivered,                                                         color: "var(--clr-success)" },
             { label: "Success Rate",       value: `${kpi.successRate}%`,                                                  color: "var(--clr-primary)" },
             { label: "Avg. Delivery Time", value: kpi.avgDeliveryHours != null ? `${kpi.avgDeliveryHours}h` : "—",       color: "#6366f1" },
             { label: "Delay Rate",         value: `${kpi.delayRate}%`,                                                    color: kpi.delayRate > 15 ? "var(--clr-danger)" : "var(--clr-warning)" },
           ].map(item => (
-            <div key={item.label} style={{ minWidth: 160 }}>
+            <div key={item.label} style={{ minWidth: 120 }}>
               <p className="text-xs text-faint" style={{ marginBottom: "0.2rem" }}>{item.label}</p>
               <p style={{ fontWeight: 800, fontSize: "1.4rem", color: item.color }}>{item.value}</p>
             </div>
