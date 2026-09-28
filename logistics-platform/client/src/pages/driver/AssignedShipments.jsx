@@ -55,14 +55,16 @@ const STATUS_COLOR = {
 
 export function AssignedShipments() {
   const { user } = useAuth();
-  const { shipments: liveShipments } = useData();
+  const { shipments: liveShipments, loading, reload, isBackendLive } = useData();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState("All");
   const [search, setSearch] = useState("");
 
-  const assignedLive = (liveShipments && liveShipments.length > 0)
+  const isDev = import.meta.env.DEV;
+  const hasLiveData = Array.isArray(liveShipments) && liveShipments.length > 0;
+  const assignedLive = hasLiveData
     ? liveShipments.filter(s => s.status !== "Pending" || (s.driverId && s.driver !== "—"))
-    : DEMO_SHIPMENTS;
+    : (isDev && !isBackendLive ? DEMO_SHIPMENTS : []);
 
   const filtered = assignedLive.filter(s => {
     const matchStatus = statusFilter === "All" || s.status === statusFilter;
@@ -123,10 +125,23 @@ export function AssignedShipments() {
       </div>
 
       {/* Cards */}
-      {filtered.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "4rem" }}>
-          <p style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>📭</p>
-          <p className="text-muted">No shipments found.</p>
+      {loading ? (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "35vh", gap: "1rem" }}>
+          <div style={{ fontSize: "2.5rem" }}>📦</div>
+          <p className="text-muted">Loading assigned shipments…</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
+          <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>📭</p>
+          <h3 style={{ marginBottom: "0.5rem" }}>No Assigned Shipments</h3>
+          <p className="text-muted text-sm" style={{ maxWidth: 440, margin: "0 auto 1.5rem" }}>
+            {search || statusFilter !== "All"
+              ? "No shipments match your active filter criteria."
+              : "You do not have any deliveries assigned to you yet. When an administrator assigns a delivery to your route, it will appear here."}
+          </p>
+          <button className="btn btn-outline btn-sm" onClick={() => reload()}>
+            🔄 Refresh List
+          </button>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

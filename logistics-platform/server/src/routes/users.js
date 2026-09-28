@@ -27,7 +27,54 @@ const updateUserSchema = z.object({
   newPassword: z.string().min(6).optional()
 });
 
+const updateMeSchema = z.object({
+  name: z.string().min(2).optional(),
+  phone: z.string().optional().nullable(),
+  address: z.object({
+    street: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    region: z.string().optional().nullable(),
+    country: z.string().optional().nullable()
+  }).optional(),
+  newPassword: z.string().min(6).optional()
+});
+
 router.use(verifySupabaseToken, requireRegisteredUser);
+
+// PUT /api/users/me — Authenticated user updates own profile
+router.put("/me", validateBody(updateMeSchema), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const updates = {};
+    if (req.body.name !== undefined) updates.name = req.body.name;
+    if (req.body.phone !== undefined) updates.phone = req.body.phone;
+    if (req.body.address !== undefined) updates.address = req.body.address;
+
+    const updatedUser = await User.findByIdAndUpdate(user.id, updates);
+
+    // If new password provided and user has authId, securely update password in Supabase Auth
+    if (req.body.newPassword && user.authId) {
+      try {
+        const { error: authErr } = await supabase.auth.admin.updateUserById(user.authId, {
+          password: req.body.newPassword
+        });
+        if (authErr) {
+          console.error("Failed to update user password in auth:", authErr);
+        }
+      } catch (pwErr) {
+        console.error("Password update error:", pwErr);
+      }
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error("Failed to update profile:", err);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+});
 
 // GET /api/users — Admin view all registered users
 router.get("/", requireRole("admin"), async (req, res) => {

@@ -26,13 +26,31 @@ export async function uploadToSupabase(fileBuffer, userId, originalName) {
   const filePath = `${userId}/${timestamp}_${randomBytes}${ext}`;
 
   // Upload to Supabase Storage
-  const { data, error } = await supabase.storage
+  let { data, error } = await supabase.storage
     .from("ghana-cards")
     .upload(filePath, fileBuffer, {
       contentType: getContentType(ext),
       cacheControl: "3600",
-      upsert: false // Don't overwrite existing files
+      upsert: true
     });
+
+  if (error && (error.message?.toLowerCase().includes("bucket not found") || error.statusCode === "404" || error.status === 404)) {
+    console.log("Storage bucket 'ghana-cards' not found. Creating it...");
+    try {
+      await supabase.storage.createBucket("ghana-cards", { public: false });
+      const retry = await supabase.storage
+        .from("ghana-cards")
+        .upload(filePath, fileBuffer, {
+          contentType: getContentType(ext),
+          cacheControl: "3600",
+          upsert: true
+        });
+      error = retry.error;
+      data = retry.data;
+    } catch (bErr) {
+      console.error("Bucket creation failed:", bErr);
+    }
+  }
 
   if (error) {
     console.error("Supabase storage upload error:", error);

@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/index.js",
+    "build": "echo 'No build required'",
     "start": "node src/index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "firebase-admin": "^14.2.0",
     "multer": "^2.3.0",
     "socket.io": "^4.8.1",
     "twilio": "^5.4.0",
@@ -18,5 +18,8 @@
   },
   "devDependencies": {
     "dotenv": "^17.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

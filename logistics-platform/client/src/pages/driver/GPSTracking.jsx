@@ -1,17 +1,95 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { io } from "socket.io-client";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useData } from "../../context/DataContext.jsx";
+import { api } from "../../lib/api.js";
+
+// Fix Leaflet's broken default icon paths under Vite
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:       "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const driverIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
+});
+
+function MapPanner({ position }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position) map.panTo(position, { animate: true, duration: 0.8 });
+  }, [position, map]);
+  return null;
+}
 
 export function GPSTracking() {
   const { user } = useAuth();
-  const [tracking, setTracking]   = useState(false);
-  const [coords, setCoords]       = useState(null);
-  const [error, setError]         = useState("");
-  const [accuracy, setAccuracy]   = useState(null);
-  const [history, setHistory]     = useState([]);
-  const [shareTime, setShareTime] = useState(0);
+  const { shipments } = useData();
+  const [tracking, setTracking]             = useState(false);
+  const [coords, setCoords]                 = useState(null);
+  const [error, setError]                   = useState("");
+  const [accuracy, setAccuracy]             = useState(null);
+  const [history, setHistory]               = useState([]);
+  const [shareTime, setShareTime]           = useState(0);
+  const [socketConnected, setSocketConnected] = useState(false);
+
   const watchId = useRef(null);
   const timerRef = useRef(null);
+  const socketRef = useRef(null);
+  const lastPostTimeRef = useRef(0);
+
+  // Find active shipment for driver
+  const liveActive = shipments?.find(s =>
+    ["In Transit", "Out For Delivery", "Dispatched", "Assigned"].includes(s.status)
+  );
+
+  const activeDelivery = liveActive ? {
+    trackingNumber: liveActive.trackingNumber || liveActive.id,
+    customer: liveActive.customerName || liveActive.customer || "Customer",
+    to: liveActive.destinationAddress || liveActive.to || "Destination",
+    eta: liveActive.eta || "Today",
+    status: liveActive.status,
+  } : {
+    trackingNumber: "TRK260808A1B2",
+    to: "East Legon, Accra",
+    customer: "Kofi Mensah",
+    eta: "Today, 4:30 PM",
+    status: "In Transit",
+  };
+
+  function connectSocket(trk) {
+    if (socketRef.current?.connected) return socketRef.current;
+
+    const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+    const token = api.defaults.headers.common?.Authorization?.replace("Bearer ", "") || "demo-token";
+
+    const socket = io(SOCKET_URL, {
+      auth: { token },
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
+    });
+
+    socket.on("connect", () => {
+      setSocketConnected(true);
+      if (trk) {
+        socket.emit("shipment:join", { trackingNumber: trk });
+      }
+    });
+
+    socket.on("disconnect", () => setSocketConnected(false));
+    socket.on("connect_error", () => setSocketConnected(false));
+
+    socketRef.current = socket;
+    return socket;
+  }
 
   function startTracking() {
     setError("");
@@ -19,23 +97,67 @@ export function GPSTracking() {
       setError("Geolocation is not supported by your browser.");
       return;
     }
+
+    const trk = activeDelivery.trackingNumber;
+    const socket = connectSocket(trk);
+
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
-        const c = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6), ts: new Date().toLocaleTimeString() };
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const c = {
+          lat: lat.toFixed(6),
+          lng: lng.toFixed(6),
+          ts: new Date().toLocaleTimeString(),
+        };
         setCoords(c);
         setAccuracy(pos.coords.accuracy?.toFixed(0));
         setHistory(prev => [c, ...prev].slice(0, 5));
+
+        // 1. Live Socket.IO emission to customer tracking room
+        if (socket?.connected) {
+          socket.emit("driver:location", {
+            trackingNumber: trk,
+            latitude: lat,
+            longitude: lng,
+          });
+        }
+
+        // 2. Throttle POST to database / API (once every 10 seconds)
+        const now = Date.now();
+        if (now - lastPostTimeRef.current > 10000) {
+          lastPostTimeRef.current = now;
+          api.post("/tracking/location", {
+            trackingNumber: trk,
+            latitude: lat,
+            longitude: lng,
+          }).catch(() => {
+            // Silently ignore if offline or demo mode
+          });
+        }
       },
       (err) => setError(err.message),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
     );
+
     timerRef.current = setInterval(() => setShareTime(t => t + 1), 1000);
     setTracking(true);
   }
 
   function stopTracking() {
-    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
-    clearInterval(timerRef.current);
+    if (watchId.current !== null) {
+      navigator.geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      setSocketConnected(false);
+    }
     setTracking(false);
   }
 
@@ -45,8 +167,6 @@ export function GPSTracking() {
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
     return `${h > 0 ? h + "h " : ""}${m > 0 ? m + "m " : ""}${sec}s`;
   }
-
-  const activeDelivery = { trackingNumber: "TRK260808A1B2", to: "East Legon, Accra", customer: "Kofi Mensah", eta: "Today, 4:30 PM" };
 
   return (
     <div className="dashboard-page">
@@ -68,9 +188,11 @@ export function GPSTracking() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             <span style={{ fontSize: "1.3rem" }}>📡</span>
             <div>
-              <p style={{ fontWeight: 700 }}>Live GPS Tracking Active</p>
+              <p style={{ fontWeight: 700 }}>
+                Live GPS Tracking Active {socketConnected && <span style={{ fontSize: "0.8rem", color: "var(--clr-success)" }}>(Real-time Connected)</span>}
+              </p>
               <p className="text-xs" style={{ opacity: 0.8 }}>
-                Your location is being shared. Sharing for {fmtTime(shareTime)}.
+                Broadcasting position for <strong>{activeDelivery.trackingNumber}</strong>. Sharing for {fmtTime(shareTime)}.
               </p>
             </div>
           </div>
@@ -79,7 +201,7 @@ export function GPSTracking() {
       ) : (
         <div style={{ background: "var(--clr-surface-2)", borderRadius: "var(--r-lg)", padding: "1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.75rem", border: "1px solid var(--clr-border)" }}>
           <span style={{ fontSize: "1.2rem" }}>⏸️</span>
-          <p className="text-muted text-sm">GPS sharing is <strong>inactive</strong>. Start sharing to let customers track you.</p>
+          <p className="text-muted text-sm">GPS sharing is <strong>inactive</strong>. Start sharing to let customers track you on the live map.</p>
         </div>
       )}
 
@@ -155,6 +277,10 @@ export function GPSTracking() {
                 <span className="detail-val">{activeDelivery.to}</span>
               </div>
               <div className="detail-row">
+                <span className="detail-label">Status</span>
+                <span className="badge badge-primary">{activeDelivery.status}</span>
+              </div>
+              <div className="detail-row">
                 <span className="detail-label">ETA</span>
                 <span className="detail-val" style={{ color: "var(--clr-primary)", fontWeight: 700 }}>{activeDelivery.eta}</span>
               </div>
@@ -181,24 +307,48 @@ export function GPSTracking() {
         </div>
 
         {/* Map */}
-        <div className="card" style={{ minHeight: 400 }}>
+        <div className="card" style={{ minHeight: 400, display: "flex", flexDirection: "column" }}>
           <div className="card-header">
             <h2 className="card-title">Live Map</h2>
-            {tracking && <span className="badge badge-success" style={{ fontSize: "0.75rem" }}>● Sharing</span>}
-          </div>
-          <div className="map-placeholder" style={{ flex: 1, minHeight: 360 }}>
-            <div className="map-placeholder-inner">
-              <span style={{ fontSize: "3rem" }}>🗺️</span>
-              <p style={{ fontWeight: 700, marginTop: "0.5rem" }}>Live Driver Map</p>
-              <p className="text-xs text-faint" style={{ maxWidth: 260, textAlign: "center" }}>
-                Connect Google Maps / Leaflet to display your real-time location and route to the destination.
-              </p>
-              {coords && (
-                <p className="text-xs" style={{ marginTop: "0.75rem", color: "var(--clr-primary)", fontWeight: 600 }}>
-                  📍 {coords.lat}, {coords.lng}
-                </p>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              {tracking && (
+                <span className="badge badge-success" style={{ fontSize: "0.75rem" }}>
+                  ● Sharing {socketConnected ? "(Real-time)" : ""}
+                </span>
               )}
             </div>
+          </div>
+          <div style={{ flex: 1, minHeight: 380, borderRadius: "var(--r-md)", overflow: "hidden", position: "relative" }}>
+            {coords ? (
+              <MapContainer
+                center={[parseFloat(coords.lat), parseFloat(coords.lng)]}
+                zoom={15}
+                style={{ height: "100%", minHeight: 380, width: "100%" }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <MapPanner position={[parseFloat(coords.lat), parseFloat(coords.lng)]} />
+                <Marker position={[parseFloat(coords.lat), parseFloat(coords.lng)]} icon={driverIcon}>
+                  <Popup>
+                    <strong>Your Location</strong><br />
+                    {coords.lat}, {coords.lng}<br />
+                    <small>Accuracy: ±{accuracy || "—"}m</small>
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            ) : (
+              <div className="map-placeholder" style={{ height: "100%", minHeight: 380 }}>
+                <div className="map-placeholder-inner">
+                  <span style={{ fontSize: "3rem" }}>🗺️</span>
+                  <p style={{ fontWeight: 700, marginTop: "0.5rem" }}>Live Driver Map</p>
+                  <p className="text-xs text-faint" style={{ maxWidth: 260, textAlign: "center" }}>
+                    Click &quot;Go Live — Start Sharing&quot; to acquire your GPS position and transmit to the customer tracking map.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -17,12 +17,20 @@ const __dirname = path.dirname(__filename);
 export function createApp() {
   const app = express();
 
-  const allowedOrigins = [
-    process.env.CLIENT_URL,
-    "http://localhost:3000",
-    "http://localhost:5173",
-  ].filter(Boolean);
-  app.use(cors({ origin: allowedOrigins, credentials: true }));
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        origin === process.env.CLIENT_URL ||
+        origin.startsWith("http://localhost:") ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

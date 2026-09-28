@@ -99,6 +99,7 @@ export function DataProvider({ children }) {
   const [drivers, setDrivers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isBackendOnline, setIsBackendOnline] = useState(false);
   const backendRef = useRef(false); // true if API is reachable
 
   /* ── Load data ──────────────────────────────────────────────── */
@@ -114,6 +115,7 @@ export function DataProvider({ children }) {
           api.get("/drivers"),
         ]);
         backendRef.current = true;
+        setIsBackendOnline(true);
         setShipments((sRes.data || []).map(normalizeShipment));
 
         const rawUsers = uRes.data || [];
@@ -186,11 +188,13 @@ export function DataProvider({ children }) {
       } else {
         const sRes = await api.get("/shipments");
         backendRef.current = true;
+        setIsBackendOnline(true);
         setShipments((sRes.data || []).map(normalizeShipment));
       }
     } catch {
       // Backend offline — use localStorage
       backendRef.current = false;
+      setIsBackendOnline(false);
       const store = loadStore();
 
       if (user.role === "admin") {
@@ -505,7 +509,7 @@ export function DataProvider({ children }) {
     deleteUser,
     registerUserLocally,
     reload: load,
-    isBackendLive: backendRef.current,
+    isBackendLive: isBackendOnline,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

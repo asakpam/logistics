@@ -10,8 +10,12 @@ const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const isValidKey = (key) => typeof key === 'string' && key.startsWith('ey') && !key.includes(' ') && !key.includes('(')
 const isValidUrl = (url) => typeof url === 'string' && url.startsWith('http') && !url.includes(' ')
 
-const supabaseUrl = isValidUrl(envUrl) ? envUrl : defaultUrl
-const supabaseAnonKey = isValidKey(envKey) ? envKey : defaultAnonKey
+const supabaseUrl = isValidUrl(envUrl) ? envUrl : defaultUrl;
+const supabaseAnonKey = isValidKey(envKey) ? envKey : defaultAnonKey;
+
+if (!isValidKey(envKey) && import.meta.env.DEV) {
+  console.info("ℹ️ Using default project Supabase public anon key. For production, set VITE_SUPABASE_ANON_KEY in your deployment environment.");
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

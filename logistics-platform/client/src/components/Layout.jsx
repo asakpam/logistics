@@ -107,6 +107,27 @@ export function Layout() {
         <div className="topbar-actions">
           {user ? (
             <>
+              <Link
+                to={user.role === "admin" ? "/admin/notifications" : "/notifications"}
+                className="btn btn-ghost btn-sm"
+                style={{ position: "relative", padding: "0.35rem 0.5rem", fontSize: "1.05rem" }}
+                title="Notifications"
+                aria-label="View notifications"
+              >
+                🔔
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    width: 7,
+                    height: 7,
+                    backgroundColor: "var(--clr-primary, #6366f1)",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                  }}
+                />
+              </Link>
               <span
                 className="topbar-user-name text-sm text-muted"
                 style={{ fontWeight: 500 }}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useData } from "../../context/DataContext.jsx";
 
 const DEMO_DATA = {
   "TRK260808A1B2": {
@@ -18,11 +19,24 @@ const DEMO_DATA = {
 export function DeliveryConfirmation() {
   const { trackingNumber } = useParams();
   const { user } = useAuth();
+  const { shipments, updateStatus } = useData();
   const navigate = useNavigate();
   const [confirmed, setConfirmed]   = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [error, setError]           = useState("");
 
-  const shipment = DEMO_DATA[trackingNumber] || {
+  const live = shipments?.find(s => (s.trackingNumber || s.id) === trackingNumber);
+  const shipment = live ? {
+    trackingNumber: live.trackingNumber || live.id,
+    customer: live.customerName || live.customer || "Customer",
+    phone: live.customerPhone || live.phone || "—",
+    from: live.pickupAddress || live.from || "Pickup Address",
+    to: live.destinationAddress || live.to || "Destination Address",
+    packageType: live.packageType || live.type || "Package",
+    weight: live.weight ? (typeof live.weight === "number" ? `${live.weight} kg` : live.weight) : "—",
+    deliveredAt: new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+    status: live.status,
+  } : (DEMO_DATA[trackingNumber] || {
     trackingNumber: trackingNumber || "TRK260808A1B2",
     customer: "Customer",
     phone: "—",
@@ -30,15 +44,22 @@ export function DeliveryConfirmation() {
     to: "Destination Address",
     packageType: "Package",
     weight: "—",
-    deliveredAt: new Date().toLocaleString(),
-  };
+    deliveredAt: new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+    status: "In Transit",
+  });
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setConfirming(true);
-    setTimeout(() => {
+    setError("");
+    try {
+      await updateStatus(shipment.trackingNumber || trackingNumber, "Delivered", "Delivered by driver");
       setConfirmed(true);
+    } catch (err) {
+      console.error("Failed to confirm delivery:", err);
+      setError(err.response?.data?.message || err.message || "Failed to confirm delivery. Please try again.");
+    } finally {
       setConfirming(false);
-    }, 1500);
+    }
   }
 
   return (
@@ -81,6 +102,12 @@ export function DeliveryConfirmation() {
                   }
                 </div>
               ))}
+
+              {error && (
+                <div className="alert alert-danger" style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
+                  ⚠️ {error}
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
                 <button

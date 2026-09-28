@@ -31,6 +31,7 @@ const Profile = lazy(() => import("./pages/Profile.jsx").then(m => ({ default: m
 
 // Driver
 const DriverDashboard = lazy(() => import("./pages/DriverDashboard.jsx").then(m => ({ default: m.DriverDashboard })));
+const DriverPendingApproval = lazy(() => import("./pages/DriverPendingApproval.jsx").then(m => ({ default: m.DriverPendingApproval })));
 const AssignedShipments = lazy(() => import("./pages/driver/AssignedShipments.jsx").then(m => ({ default: m.AssignedShipments })));
 const DeliveryDetails = lazy(() => import("./pages/driver/DeliveryDetails.jsx").then(m => ({ default: m.DeliveryDetails })));
 const GPSTracking = lazy(() => import("./pages/driver/GPSTracking.jsx").then(m => ({ default: m.GPSTracking })));
@@ -116,6 +117,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 } />
 
                 {/* ── Driver ──────────────────────────────────────── */}
+                <Route path="/driver/pending" element={<DriverPendingApproval />} />
                 <Route path="/dashboard/driver" element={
                   <ProtectedRoute role="driver"><DriverDashboard /></ProtectedRoute>
                 } />
